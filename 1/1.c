@@ -295,16 +295,17 @@ Status listTraverse(SqList list, void (*visitor)(ElemType)) {
  * @return {Status} - execution status
  */
 Status loadData(SqList *list) {
-    FILE *fp = fopen("output.txt", "r");
+    FILE *fp = fopen("data.txt", "r");
     if (fp == NULL) { // file doesn't exist
         printf("File doesn't exist!\n");
         return ERROR;
     }
 
     ElemType element;
-    int i = 1;
-    fscanf(fp, "%d\n\n");
-    fscanf(fp, "%d\n\n");
+    int i = 1, length, listSize;
+    fscanf(fp, "%d\n\n", &length);
+    fscanf(fp, "%d\n\n", &listSize);
+    printf("Loading list of length %d and size %d...", length, listSize);
     list->length = 0;
     list->listSize = LIST_SIZE_INITIAL;
 
@@ -323,9 +324,9 @@ Status loadData(SqList *list) {
  * @return {Status} - execution status
  */
 Status saveData(SqList list) {
-    FILE *fp = fopen("output.txt", "w");
+    FILE *fp = fopen("data.txt", "w");
     if (fp == NULL) { // file doesn't exist
-        fp = fopen("output.txt", "wb"); // create it first
+        fp = fopen("data.txt", "wb"); // create it first
     }
 
     if (list.elem) {
@@ -537,11 +538,12 @@ int main() {
                         break;
                     }
                     status = saveData(listArray[input]);
-                    printf(status == OK ? "Saved successfully!\n" : "Failed to save!\n");
+                    printf(status == OK ? "Saved successfully to `data.txt`!\n" : "Failed to save!\n");
                     getchar();
                     break;
                 case 15:
                     printf("You've chosen function loadData(), which loads a list from a file\n");
+                    printf("Please prepare `data.txt` in current directory!\n");
                     printf("Please input the index of list which has NOT been initialized (from 0 to 99):\n");
                     if (!scanf("%d", &input) || input >= LIST_SIZE_INITIAL || input < 0) {
                         printf("Invalid value!\n");
