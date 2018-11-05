@@ -305,7 +305,7 @@ Status loadData(SqList *list) {
     int i = 1, length, listSize;
     fscanf(fp, "%d\n\n", &length);
     fscanf(fp, "%d\n\n", &listSize);
-    printf("Loading list of length %d and size %d...", length, listSize);
+    printf("Loading list of length %d and size %d...\n", length, listSize);
     list->length = 0;
     list->listSize = LIST_SIZE_INITIAL;
 
@@ -387,7 +387,7 @@ int main() {
         Status status;
         showMenu();
         printf("Current list: L%d\n", currentListIndex);
-        printf("Please input your option[0-12]:\n");
+        printf("Please input your option[0-15]:\n");
         int isValid = scanf("%d", &option);
         if (!isValid) {
             printf("You entered an invalid value!\n");
@@ -417,7 +417,10 @@ int main() {
                     break;
                 case 4:
                     printf("You've chosen function isListEmpty(), which shows whether a list is empty\n");
-                    printf(isListEmpty(*currentList) ? "The list is empty\n" : "The list is not empty\n");
+                    status = isListEmpty(*currentList);
+                    printf(status == ERROR ? "The list has not been initialized"
+                                           : status == TRUE ? "The list is empty\n"
+                                                             : "The list is not empty\n");
                     getchar();
                     break;
                 case 5:
@@ -551,7 +554,7 @@ int main() {
                         break;
                     }
                     if (initializeList(&listArray[input]) != OK) {
-                        printf("This list has already been initialized!\n");
+                        printf("This list has ALREADY been initialized!\n");
                         getchar();
                         break;
                     }
