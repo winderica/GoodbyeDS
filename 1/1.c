@@ -303,14 +303,15 @@ Status loadData(SqList *list) {
 
     ElemType element;
     int i = 1, length, listSize;
+    /* fscanf: read as ascii */
     fscanf(fp, "%d\n\n", &length);
     fscanf(fp, "%d\n\n", &listSize);
     printf("Loading list of length %d and size %d...\n", length, listSize);
     list->length = 0;
     list->listSize = LIST_SIZE_INITIAL;
 
-    while (fscanf(fp, "%d\n", &element.value) != EOF) {
-        listInsert(list, i, element);
+    while (fscanf(fp, "%d\n", &element.value) != EOF) { // while element value exists
+        listInsert(list, i, element); // insert into the end of list
         i++;
     }
 
@@ -330,7 +331,8 @@ Status saveData(SqList list) {
     }
 
     if (list.elem) {
-        fprintf(fp, "%d\n\n", list.length); // write in ascii
+        /* fprintf: write in ascii */
+        fprintf(fp, "%d\n\n", list.length);
         fprintf(fp, "%d\n\n", list.listSize);
         for (int i = 0; i < listLength(list); i++) {
             fprintf(fp, "%d\n", list.elem[i].value);
@@ -420,7 +422,7 @@ int main() {
                     status = isListEmpty(*currentList);
                     printf(status == ERROR ? "The list has not been initialized"
                                            : status == TRUE ? "The list is empty\n"
-                                                             : "The list is not empty\n");
+                                                            : "The list is not empty\n");
                     getchar();
                     break;
                 case 5:
@@ -522,7 +524,7 @@ int main() {
                 case 13:
                     printf("You've chosen function selectList(), which selects a list\n");
                     printf("Please input the index of list (from 0 to 99):\n");
-                    if (!scanf("%d", &currentListIndex) || currentListIndex >= LIST_SIZE_INITIAL || input < 0) {
+                    if (!scanf("%d", &currentListIndex) || currentListIndex >= LIST_SIZE_INITIAL || currentListIndex < 0) {
                         printf("Invalid value!\n");
                         currentListIndex = prevIndex;
                         while (getchar() != '\n');
@@ -553,13 +555,14 @@ int main() {
                         while (getchar() != '\n');
                         break;
                     }
-                    if (initializeList(&listArray[input]) != OK) {
+                    if (initializeList(&listArray[input]) == ERROR) {
                         printf("This list has ALREADY been initialized!\n");
-                        getchar();
-                        break;
+                    } else if (initializeList(&listArray[input]) == OVERFLOW) {
+                        printf("Overflow!\n");
+                    } else {
+                        status = loadData(&listArray[input]);
+                        printf(status == OK ? "Loaded successfully!\n" : "Failed to load!\n");
                     }
-                    status = loadData(&listArray[input]);
-                    printf(status == OK ? "Loaded successfully!\n" : "Failed to load!\n");
                     getchar();
                     break;
                 default:
