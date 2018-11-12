@@ -290,6 +290,17 @@ Status listTraverse(SqList list, void (*visitor)(ElemType)) {
 }
 
 /**
+ * Select a list
+ * @param {SqList **} currentList - pointer to `SqList *currentList`
+ * @param {SqList **} nextList - pointer to nextList
+ * @return {Status} - execution status
+ */
+Status selectList(SqList **currentList, SqList *nextList) {
+    *currentList = nextList;
+    return OK;
+}
+
+/**
  * Load data from a file
  * @param {SqList *} list - list
  * @return {Status} - execution status
@@ -300,42 +311,50 @@ Status loadData(SqList *list) {
         printf("File doesn't exist!\n");
         return ERROR;
     }
+    Status result = initializeList(list);
+    if (result == ERROR) {
+        printf("This list has ALREADY been initialized!\n");
+        fclose(fp);
+        return ERROR;
+    } else if (result == OVERFLOW) {
+        printf("Overflow!\n");
+        fclose(fp);
+        return ERROR;
+    } else {
+        ElemType element;
+        int i = 1, length, listSize;
+        /* fscanf: read as ascii */
+        fscanf(fp, "%d\n\n", &length);
+        fscanf(fp, "%d\n\n", &listSize);
+        printf("Loading list of length %d and size %d...\n", length, listSize);
 
-    ElemType element;
-    int i = 1, length, listSize;
-    /* fscanf: read as ascii */
-    fscanf(fp, "%d\n\n", &length);
-    fscanf(fp, "%d\n\n", &listSize);
-    printf("Loading list of length %d and size %d...\n", length, listSize);
-    list->length = 0;
-    list->listSize = LIST_SIZE_INITIAL;
+        while (fscanf(fp, "%d\n", &element.value) != EOF) { // while element value exists
+            listInsert(list, i, element); // insert into the end of list
+            i++;
+        }
 
-    while (fscanf(fp, "%d\n", &element.value) != EOF) { // while element value exists
-        listInsert(list, i, element); // insert into the end of list
-        i++;
+        fclose(fp);
+        return OK;
     }
-
-    fclose(fp);
-    return OK;
 }
 
 /**
  * Save data to a file
- * @param {SqList} list - list
+ * @param {SqList *} list - list
  * @return {Status} - execution status
  */
-Status saveData(SqList list) {
+Status saveData(SqList *list) {
     FILE *fp = fopen("data.txt", "w");
     if (fp == NULL) { // file doesn't exist
         fp = fopen("data.txt", "wb"); // create it first
     }
 
-    if (list.elem) {
+    if (list->elem) {
         /* fprintf: write in ascii */
-        fprintf(fp, "%d\n\n", list.length);
-        fprintf(fp, "%d\n\n", list.listSize);
-        for (int i = 0; i < listLength(list); i++) {
-            fprintf(fp, "%d\n", list.elem[i].value);
+        fprintf(fp, "%d\n\n", list->length);
+        fprintf(fp, "%d\n\n", list->listSize);
+        for (int i = 0; i < listLength(*list); i++) {
+            fprintf(fp, "%d\n", list->elem[i].value);
         }
         fclose(fp);
         return OK;
@@ -360,7 +379,7 @@ void showElement(ElemType e) {
  * @return {void}
  */
 void showMenu() {
-    printf("\n     Menu for Linear Table On Sequence Structure    \n");
+    printf("\n      Menu of Linear Table On Sequence Structure    \n");
     printf("------------------------------------------------------\n");
     printf("    	  1. initializeList  8.  priorElem\n");
     printf("    	  2. destroyList     9.  nextElem\n");
@@ -530,8 +549,8 @@ int main() {
                         while (getchar() != '\n');
                         break;
                     }
-                    currentList = &listArray[currentListIndex];
-                    printf("Selected successfully!\n");
+                    status = selectList(&currentList, &listArray[currentListIndex]);
+                    printf(status == OK ? "Selected successfully!\n" : "Failed to select!\n");
                     getchar();
                     break;
                 case 14:
@@ -542,7 +561,7 @@ int main() {
                         while (getchar() != '\n');
                         break;
                     }
-                    status = saveData(listArray[input]);
+                    status = saveData(&listArray[input]);
                     printf(status == OK ? "Saved successfully to `data.txt`!\n" : "Failed to save!\n");
                     getchar();
                     break;
@@ -555,14 +574,8 @@ int main() {
                         while (getchar() != '\n');
                         break;
                     }
-                    if (initializeList(&listArray[input]) == ERROR) {
-                        printf("This list has ALREADY been initialized!\n");
-                    } else if (initializeList(&listArray[input]) == OVERFLOW) {
-                        printf("Overflow!\n");
-                    } else {
-                        status = loadData(&listArray[input]);
-                        printf(status == OK ? "Loaded successfully!\n" : "Failed to load!\n");
-                    }
+                    status = loadData(&listArray[input]);
+                    printf(status == OK ? "Loaded successfully!\n" : "Failed to load!\n");
                     getchar();
                     break;
                 default:
