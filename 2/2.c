@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 
-/* type defines*/
+/* type definitions */
 // status type
 typedef int Status;
 #define OK 1
