@@ -625,11 +625,16 @@ void showElement(TreeNode *e) {
  */
 int printHelper(TreeNode *node, Boolean isLeft, int offset, int depth, char **buffer) {
     char b[20] = "";
-    int width = 3;
     if (!node) {
         return 0;
     }
-
+    int value = node->data.value;
+    int digits = 1;
+    while (value / 10) {
+        value /= 10;
+        digits++;
+    }
+    int width = 2 + digits;
     // insert to buffer
     sprintf(b, "[%d]", node->data.value);
 
@@ -699,12 +704,11 @@ Status print(BinaryTree *binaryTree) {
     int finalWidth = printHelper(binaryTree->root, 0, 0, 0, s);
     if (finalWidth > consoleWidth) { // width exceeds
         printf("[WARNING: The width of console CANNOT show the whole tree!]\n");
-    } else {
-        for (int i = 0; i < height; i++) { // print items from buffer
-            printf("%s\n", s[i]);
-        }
+        return ERROR;
     }
+
     for (int i = 0; i < height; i++) { // print items from buffer
+        printf("%s\n", s[i]);
         free(s[i]); // free buffer item
     }
     free(s); // free buffer

@@ -6,6 +6,7 @@
 #include <wincon.h>
 #else
 #include <sys/ioctl.h>
+#include <string.h>
 #endif
 
 /* type definitions */
