@@ -11,7 +11,7 @@ int main() {
     do {
         showMenu();
         printf("Current binaryTree: T%d\n", currentBinaryTreeIndex);
-        printf("Please input your option[0-23]:\n");
+        printf("Please input your option[0-24]:\n");
         int isValid = scanf("%d", &option);
         if (!isValid) {
             printf("You entered an invalid value!\n");

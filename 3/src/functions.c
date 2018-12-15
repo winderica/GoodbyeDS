@@ -339,7 +339,7 @@ TreeNode *getNode(BinaryTree *binaryTree, int key) {
     if (parent == NULL) {
         return NULL;
     }
-    if (parent->leftChild && parent->leftChild->data.key) {
+    if (parent->leftChild && parent->leftChild->data.key == key) {
         return parent->leftChild;
     } else {
         return parent->rightChild;
@@ -530,6 +530,35 @@ Status selectBinaryTree(BinaryTree **currentBinaryTree, BinaryTree *nextBinaryTr
 }
 
 /**
+ * Helper function to load data
+ * @param {BinaryTree *} binaryTree - binaryTree
+ * @param {FILE *} fp - file pointer
+ * @return {Status} - execution status
+ */
+Status loadHelper(BinaryTree *binaryTree, FILE* fp) {
+    int key, value;
+    /* fscanf: read as ascii */
+    int length = 0;
+    while (fscanf(fp, "%d %d\n", &key, &value) != EOF) { // while element value exists
+        length++;
+    }
+    if (length == 0) {
+        printf("There are no data!\n");
+        fclose(fp);
+        return ERROR;
+    }
+    length /= 2;
+    rewind(fp);
+
+    ElemType *preOrder = scanHelper(length, fp);
+    ElemType *inOrder = scanHelper(length, fp);
+
+    fclose(fp);
+
+    return createBinaryTree(binaryTree, preOrder, inOrder, length);
+}
+
+/**
  * Load data from a file
  * @param {BinaryTree *} binaryTree - binaryTree
  * @return {Status} - execution status
@@ -550,27 +579,7 @@ Status loadData(BinaryTree *binaryTree) {
         fclose(fp);
         return ERROR;
     } else {
-        int key, value;
-        /* fscanf: read as ascii */
-        int length = 0;
-        while (fscanf(fp, "%d %d\n", &key, &value) != EOF) { // while element value exists
-            length++;
-        }
-        if (length == 0) {
-            printf("There are no data!\n");
-            fclose(fp);
-            return ERROR;
-        }
-        length /= 2;
-        rewind(fp);
-
-        ElemType *preOrder = scanHelper(length, fp);
-        ElemType *inOrder = scanHelper(length, fp);
-
-        fclose(fp);
-
-        Status status = createBinaryTree(binaryTree, preOrder, inOrder, length);
-        return status;
+        return loadHelper(binaryTree, fp);
     }
 }
 
@@ -668,6 +677,36 @@ int printHelper(TreeNode *node, Boolean isLeft, int offset, int depth, char **bu
 }
 
 /**
+ * Print tree beautifully
+ * @param {BinaryTree *} binaryTree - binaryTree
+ * @param {int} height - height of tree
+ * @param {int} width - width of console
+ * @return {Status} - execution status
+ */
+Status beautifulPrinter(BinaryTree *binaryTree, int height, int width) {
+    // initialize buffer
+    char **s = malloc(sizeof(char *) * height);
+    for (int i = 0; i < height; i++) {
+        s[i] = malloc(sizeof(char) * width);
+        memset(s[i], ' ', sizeof(char) * width);
+        s[i][width - 1] = '\0';
+    }
+
+    int finalWidth = printHelper(binaryTree->root, 0, 0, 0, s);
+    if (finalWidth > width) { // width exceeds
+        printf("[WARNING: The width of console CANNOT show the whole tree!]\n");
+        return ERROR;
+    }
+
+    for (int i = 0; i < height; i++) { // print items from buffer
+        printf("%s\n", s[i]);
+        free(s[i]); // free buffer item
+    }
+    free(s); // free buffer
+    return OK;
+}
+
+/**
  * Print tree
  * @param {BinaryTree *} binaryTree - binaryTree
  * @return {Status} - execution status
@@ -693,25 +732,10 @@ Status print(BinaryTree *binaryTree) {
     }
     printf("\n");
 
-    // initialize buffer
-    char **s = malloc(sizeof(char *) * height);
-    for (int i = 0; i < height; i++) {
-        s[i] = malloc(sizeof(char) * consoleWidth);
-        memset(s[i], ' ', sizeof(char) * consoleWidth);
-        s[i][consoleWidth - 1] = '\0';
-    }
-
-    int finalWidth = printHelper(binaryTree->root, 0, 0, 0, s);
-    if (finalWidth > consoleWidth) { // width exceeds
-        printf("[WARNING: The width of console CANNOT show the whole tree!]\n");
+    Status status = beautifulPrinter(binaryTree, height, consoleWidth);
+    if (status != OK) {
         return ERROR;
     }
-
-    for (int i = 0; i < height; i++) { // print items from buffer
-        printf("%s\n", s[i]);
-        free(s[i]); // free buffer item
-    }
-    free(s); // free buffer
     for (int i = 0; i < consoleWidth; i++) {
         printf("-");
     }
