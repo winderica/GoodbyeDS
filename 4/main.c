@@ -33,10 +33,11 @@ int main() {
                     }
                     printf("Please input the key and value of vertices:\n");
                     ElemType *vertices = (ElemType *) malloc(verticesNumber * sizeof(ElemType));
-                    int key, value;
+                    int key;
+                    char value;
                     int i = 0;
                     while (i < verticesNumber) {
-                        scanf("%d %d", &key, &value);
+                        scanf("%d %c", &key, &value);
                         vertices[i].key = key;
                         vertices[i].value = value;
                         i++;
@@ -72,11 +73,11 @@ int main() {
                     getchar();
                     break;
                 }
-                case 3: { // findVertex
-                    printf("You've chosen function findVertex(), which finds a vertex\n");
+                case 3: { // locateByValue
+                    printf("You've chosen function locateByValue(), which finds a vertex\n");
                     printf("Please input the value of vertex:\n");
-                    int value;
-                    if (!scanf("%d", &value)) { // invalid input
+                    char value;
+                    if (!scanf("%c", &value)) { // invalid input
                         printf("Invalid value!\n");
                         while (getchar() != '\n');
                         break;
@@ -103,8 +104,9 @@ int main() {
                 case 5: { // setValue
                     printf("You've chosen function setValue(), which sets the value of a vertex\n");
                     printf("Please input the key, value of vertex:\n");
-                    int key, value;
-                    if (!scanf("%d %d", &key, &value)) { // invalid input
+                    int key;
+                    char value;
+                    if (!scanf("%d %c", &key, &value)) { // invalid input
                         printf("Invalid value!\n");
                         while (getchar() != '\n');
                         break;
@@ -147,8 +149,9 @@ int main() {
                 case 8: { // insertVertex
                     printf("You've chosen function insertVertex(), which inserts a vertex\n");
                     printf("Please input the key, value of vertex:\n");
-                    int key, value;
-                    if (!scanf("%d %d", &key, &value)) { // invalid input
+                    int key;
+                    char value;
+                    if (!scanf("%d %c", &key, &value)) { // invalid input
                         printf("Invalid value!\n");
                         while (getchar() != '\n');
                         break;
@@ -205,7 +208,6 @@ int main() {
                 }
                 case 12: { // depthFirstSearch
                     printf("You've chosen function depthFirstSearch(), which which traverses a graph depth-first\n");
-
                     depthFirstSearch(currentGraph, showElement);
                     getchar();
                     break;

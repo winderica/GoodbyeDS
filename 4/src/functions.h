@@ -15,10 +15,6 @@ typedef int Status;
 #define OK 1
 #define ERROR -1
 
-typedef int TraversalOrder;
-#define DFS 1
-#define BFS 2
-
 // boolean type
 typedef int Boolean;
 #define TRUE 1
@@ -27,7 +23,7 @@ typedef int Boolean;
 // number of binaryGraphs
 #define TOTAL_GRAPHS 100
 
-typedef int Value;
+typedef char Value;
 
 typedef struct ElemType {
     int key;
@@ -59,9 +55,9 @@ typedef struct Graph {
 
 Status createGraph(Graph *graph, ElemType *vertices, Arc *arcs, int verticesNumber, int arcsNumber);
 
-Status destroyGraph(Graph *G);
+Status destroyGraph(Graph *graph);
 
-GraphVertex *locateByValue(Graph *graph, int value);
+GraphVertex *locateByValue(Graph *graph, char value);
 
 GraphVertex *findVertex(Graph *graph, int key);
 
@@ -73,19 +69,15 @@ AdjacentVertex *getFirstVertex(Graph *graph, int key);
 
 AdjacentVertex *getNextVertex(Graph *graph, int key, int prevKey);
 
-
 Status insertVertex(Graph *graph, ElemType vertexData);
 
 Status deleteVertex(Graph *graph, int key);
 
+Status insertArc(Graph *graph, int from, int to);
 
-int insertArc(Graph *graph, int from, int to);
-
-
-int deleteArc(Graph *graph, int from, int to);
+Status deleteArc(Graph *graph, int from, int to);
 
 Status depthFirstSearch(Graph *graph, void visitor(GraphVertex *));
-
 
 Status breadthFirstSearch(Graph *graph, void visitor(GraphVertex *));
 
@@ -94,6 +86,7 @@ Status selectGraph(Graph **currentGraph, Graph *nextGraph);
 Status loadData(Graph *graph);
 
 Status saveData(Graph *graph);
+
 void showElement(GraphVertex *e);
 
 void showMenu();

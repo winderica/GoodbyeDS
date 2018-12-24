@@ -1,5 +1,13 @@
 #include "functions.h"
 
+/**
+ * Helper function of DFS
+ * @param {Graph *} graph - pointer to a graph
+ * @param {GraphVertex *} vertex - pointer to a vertex
+ * @param {int *} visited - visited vertices
+ * @param {void (*)(GraphVertex *)} visitor - visit function
+ * @return {void}
+ */
 void depthFirstSearchHelper(Graph *graph, GraphVertex *vertex, int *visited, void visitor(GraphVertex *)) {
     visited[vertex->data.key - 1] = 1;
     visitor(vertex);
@@ -11,11 +19,12 @@ void depthFirstSearchHelper(Graph *graph, GraphVertex *vertex, int *visited, voi
         adjacentVertex = adjacentVertex->next;
     }
 }
+
 /**
- * Traverses a graph pre-orderly
- * @param {GraphVertex *} node - pointer to a node
- * @param {void (*)(ElemType)} visitor - visit function
- * @return {void}
+ * Traverses a graph depth firstly
+ * @param {Graph *} graph - pointer to a graph
+ * @param {void (*)(GraphVertex *)} visitor - visit function
+ * @return {Status} - execution status
  */
 Status depthFirstSearch(Graph *graph, void visitor(GraphVertex *)) {
     if (!graph->initialized || !graph->vertices) {
@@ -37,6 +46,14 @@ Status depthFirstSearch(Graph *graph, void visitor(GraphVertex *)) {
     return OK;
 }
 
+/**
+ * Helper function of BFS
+ * @param {Graph *} graph - pointer to a graph
+ * @param {GraphVertex *} vertex - pointer to a vertex
+ * @param {int *} visited - visited vertices
+ * @param {void (*)(GraphVertex *)} visitor - visit function
+ * @return {void}
+ */
 void breadthFirstSearchHelper(Graph *graph, GraphVertex *vertex, int *visited, void visitor(GraphVertex *)) {
     int length = 0;
     int start = 0;
@@ -61,6 +78,12 @@ void breadthFirstSearchHelper(Graph *graph, GraphVertex *vertex, int *visited, v
     }
 }
 
+/**
+ * Traverses a graph breadth firstly
+ * @param {Graph *} graph - pointer to a graph
+ * @param {void (*)(GraphVertex *)} visitor - visit function
+ * @return {Status} - execution status
+ */
 Status breadthFirstSearch(Graph *graph, void visitor(GraphVertex *)) {
     if (!graph->initialized || !graph->vertices) {
         return ERROR;
@@ -84,9 +107,10 @@ Status breadthFirstSearch(Graph *graph, void visitor(GraphVertex *)) {
 /**
  * Create an graph
  * @param {Graph *} graph - pointer to a graph
- * @param {ElemType *} preOrderDefinition - pre order definition
- * @param {ElemType *} inOrderDefinition - in order definition
- * @param {int} length - list length
+ * @param {ElemType *} vertices - vertices
+ * @param {Arc *} arcs - arcs
+ * @param {int} length - verticesNumber
+ * @param {int} length - arcsNumber
  * @return {Status} - execution status
  */
 Status createGraph(Graph *graph, ElemType *vertices, Arc *arcs, int verticesNumber, int arcsNumber) {
@@ -113,6 +137,12 @@ Status createGraph(Graph *graph, ElemType *vertices, Arc *arcs, int verticesNumb
     return status;
 }
 
+/**
+ * Helper function to free adjacent nodes
+ * @param {Graph *} graph - pointer to a graph
+ * @param {GraphVertex *} vertices - vertex
+ * @return {void}
+ */
 void freeAdjacency(Graph *graph, GraphVertex *vertex) {
     AdjacentVertex *adjacentVertex = vertex->adjacency;
     while (adjacentVertex) {
@@ -147,12 +177,12 @@ Status destroyGraph(Graph *graph) {
 }
 
 /**
- * Get vertex of a key
+ * Get vertex by value
  * @param {Graph *} graph - pointer to graph
- * @param {int} key - key
- * @return {GraphVertex *} - pointer to node
+ * @param {char} value - value
+ * @return {GraphVertex *} - pointer to vertex
  */
-GraphVertex *locateByValue(Graph *graph, int value) {
+GraphVertex *locateByValue(Graph *graph, char value) {
     if (!graph->initialized || !graph->vertices) { // graph doesn't exist
         return NULL;
     }
@@ -168,10 +198,10 @@ GraphVertex *locateByValue(Graph *graph, int value) {
 }
 
 /**
- * Get value of a node
+ * Get vertex by key
  * @param {Graph *} graph - pointer to graph
  * @param {int} key - key
- * @return {int} - value of a node
+ * @return {GraphVertex *} - pointer to vertex
  */
 GraphVertex *findVertex(Graph *graph, int key) {
     if (!graph->initialized || !graph->vertices) { // graph doesn't exist
@@ -188,14 +218,20 @@ GraphVertex *findVertex(Graph *graph, int key) {
     return NULL;
 }
 
+/**
+ * Get value of vertex by key
+ * @param {Graph *} graph - pointer to graph
+ * @param {int} key - key
+ * @return {void}
+ */
 void getValue(Graph *graph, int key) {
     GraphVertex *vertex = findVertex(graph, key);
     vertex == NULL ? printf("This vertex doesn't exist!\n")
-                   : printf("The value of vertex is %d\n", vertex->data.value);
+                   : printf("The value of vertex is %c\n", vertex->data.value);
 }
 
 /**
- * Set value of a node
+ * Set value of a vertex
  * @param {Graph *} graph - pointer to graph
  * @param {int} key - key
  * @param {Value} value - value
@@ -211,10 +247,10 @@ Status setValue(Graph *graph, int key, Value value) {
 }
 
 /**
- * Get left sibling of a node
+ * Get first adjacent vertex of a vertex
  * @param {Graph *} graph - pointer to graph
  * @param {int} key - key
- * @return {GraphVertex *} - left sibling
+ * @return {AdjacentVertex *} - first adjacent vertex
  */
 AdjacentVertex *getFirstVertex(Graph *graph, int key) {
     GraphVertex *vertex = findVertex(graph, key);
@@ -225,10 +261,11 @@ AdjacentVertex *getFirstVertex(Graph *graph, int key) {
 }
 
 /**
- * Get right sibling of a node
+ * Get next adjacent vertex of a vertex
  * @param {Graph *} graph - pointer to graph
  * @param {int} key - key
- * @return {GraphVertex *} - right sibling
+ * @param {int} prevKey - key of previous vertex
+ * @return {AdjacentVertex *} - next adjacent vertex
  */
 AdjacentVertex *getNextVertex(Graph *graph, int key, int prevKey) {
     GraphVertex *vertex = findVertex(graph, key);
@@ -244,12 +281,23 @@ AdjacentVertex *getNextVertex(Graph *graph, int key, int prevKey) {
     return NULL;
 }
 
+void insertVertexHelper(Graph *graph, GraphVertex *newVertex) {
+    if (graph->vertices == NULL) {
+        graph->vertices = newVertex;
+    } else {
+        GraphVertex *graphVertex = graph->vertices;
+        while (graphVertex->next) {
+            graphVertex = graphVertex->next;
+        }
+        graphVertex->next = newVertex;
+    }
+    graph->verticesNumber++;
+}
+
 /**
  * Insert a vertex to a graph
  * @param {Graph *} graph - pointer to graph
- * @param {GraphVertex *} node - node to insert to
- * @param {Boolean} isLeft - insert to left or tight
- * @param {Graph *} newGraph - pointer to newGraph
+ * @param {ElemType} vertexData - vertex data
  * @return {Status} - execution status
  */
 Status insertVertex(Graph *graph, ElemType vertexData) {
@@ -269,39 +317,11 @@ Status insertVertex(Graph *graph, ElemType vertexData) {
     newVertex->data = vertexData;
     newVertex->adjacency = NULL;
     newVertex->next = NULL;
-    if (graph->vertices == NULL) {
-        graph->vertices = newVertex;
-    } else {
-        GraphVertex *graphVertex = graph->vertices;
-        while (graphVertex->next) {
-            graphVertex = graphVertex->next;
-        }
-        graphVertex->next = newVertex;
-    }
-    graph->verticesNumber++;
+    insertVertexHelper(graph, newVertex);
     return OK;
 }
 
-/**
- * Delete a vertex from a graph
- * @param {Graph *} graph - pointer to graph
- * @param {GraphVertex *} node - node to delete from
- * @param {Boolean} isLeft - insert to left or tight
- * @return {Status} - execution status
- */
-
-Status deleteVertex(Graph *graph, int key) {
-    if (!graph->initialized || !graph->vertices) { // graph doesn't exist
-        return ERROR;
-    }
-    GraphVertex *vertex = graph->vertices;
-    while (vertex) {
-        if (vertex->data.key != key) {
-            deleteArc(graph, vertex->data.key, key);
-        }
-        vertex = vertex->next;
-    }
-    vertex = graph->vertices;
+Status deleteVertexHelper(Graph *graph, GraphVertex *vertex, int key) {
     if (vertex->data.key == key) {
         graph->vertices = vertex->next;
         freeAdjacency(graph, vertex);
@@ -325,20 +345,27 @@ Status deleteVertex(Graph *graph, int key) {
 }
 
 /**
- * Insert a arc to a graph
+ * Delete a vertex from a graph
  * @param {Graph *} graph - pointer to graph
- * @param {GraphVertex *} node - node to insert to
- * @param {Boolean} isLeft - insert to left or tight
- * @param {Graph *} newGraph - pointer to newGraph
+ * @param {int} key - key of vertex to be deleted
  * @return {Status} - execution status
  */
-Status insertArc(Graph *graph, int from, int to) {
-    GraphVertex *srcVertex = findVertex(graph, from);
-    GraphVertex *dstVertex = findVertex(graph, to);
-    if (!srcVertex || !dstVertex) {
+Status deleteVertex(Graph *graph, int key) {
+    if (!graph->initialized || !graph->vertices) { // graph doesn't exist
         return ERROR;
     }
-    AdjacentVertex *adjacentVertex = srcVertex->adjacency;
+    GraphVertex *vertex = graph->vertices;
+    while (vertex) {
+        if (vertex->data.key != key) {
+            deleteArc(graph, vertex->data.key, key);
+        }
+        vertex = vertex->next;
+    }
+    vertex = graph->vertices;
+    return deleteVertexHelper(graph, vertex, key);
+}
+
+Status insertArcHelper(Graph *graph, AdjacentVertex *adjacentVertex, GraphVertex *srcVertex, int to) {
     if (!adjacentVertex) {
         srcVertex->adjacency = (AdjacentVertex *) malloc(sizeof(AdjacentVertex));
         srcVertex->adjacency->key = to;
@@ -362,20 +389,23 @@ Status insertArc(Graph *graph, int from, int to) {
 }
 
 /**
- * Delete a arc from a graph
+ * Insert an arc to a graph
  * @param {Graph *} graph - pointer to graph
- * @param {GraphVertex *} node - node to delete from
- * @param {Boolean} isLeft - insert to left or tight
+ * @param {int} from - start of arc
+ * @param {int} to - end of arc
  * @return {Status} - execution status
  */
-
-Status deleteArc(Graph *graph, int from, int to) {
+Status insertArc(Graph *graph, int from, int to) {
     GraphVertex *srcVertex = findVertex(graph, from);
     GraphVertex *dstVertex = findVertex(graph, to);
     if (!srcVertex || !dstVertex) {
         return ERROR;
     }
     AdjacentVertex *adjacentVertex = srcVertex->adjacency;
+    return insertArcHelper(graph, adjacentVertex, srcVertex, to);
+}
+
+Status deleteArcHelper(Graph *graph, AdjacentVertex *adjacentVertex, GraphVertex *srcVertex, int to) {
     if (!adjacentVertex) {
         return ERROR;
     } else if (adjacentVertex->key == to) {
@@ -399,6 +429,23 @@ Status deleteArc(Graph *graph, int from, int to) {
 }
 
 /**
+ * delete an arc from a graph
+ * @param {Graph *} graph - pointer to graph
+ * @param {int} from - start of arc
+ * @param {int} to - end of arc
+ * @return {Status} - execution status
+ */
+Status deleteArc(Graph *graph, int from, int to) {
+    GraphVertex *srcVertex = findVertex(graph, from);
+    GraphVertex *dstVertex = findVertex(graph, to);
+    if (!srcVertex || !dstVertex) {
+        return ERROR;
+    }
+    AdjacentVertex *adjacentVertex = srcVertex->adjacency;
+    return deleteArcHelper(graph, adjacentVertex, srcVertex, to);
+}
+
+/**
  * Select a graph
  * @param {Graph **} currentGraph - pointer to `Graph *currentGraph`
  * @param {Graph *} nextGraph - pointer to nextGraph
@@ -419,10 +466,11 @@ Status loadHelper(Graph *graph, FILE *fp) {
     int verticesNumber;
     fscanf(fp, "%d", &verticesNumber);
     ElemType *vertices = (ElemType *) malloc(verticesNumber * sizeof(ElemType));
-    int key, value;
+    int key;
+    char value;
     int i = 0;
     while (i < verticesNumber) {
-        fscanf(fp, "%d %d", &key, &value);
+        fscanf(fp, "%d %c", &key, &value);
         vertices[i].key = key;
         vertices[i].value = value;
         i++;
@@ -463,21 +511,11 @@ Status loadData(Graph *graph) {
     return status;
 }
 
-/**
- * Save data to a file
- * @param {Graph *} graph - graph
- * @return {Status} - execution status
- */
-Status saveData(Graph *graph) {
-    if (!graph->initialized || !graph->vertices) { // binaryTree doesn't exist
-        return ERROR;
-    }
-
-    FILE *fp = fopen("data.txt", "w+");
+void saveHelper(Graph *graph, FILE *fp) {
     fprintf(fp, "%d\n", graph->verticesNumber);
     GraphVertex *vertex = graph->vertices;
     while (vertex) {
-        fprintf(fp, "%d %d\n", vertex->data.key, vertex->data.value);
+        fprintf(fp, "%d %c\n", vertex->data.key, vertex->data.value);
         vertex = vertex->next;
     }
     fprintf(fp, "%d\n", graph->arcsNumber);
@@ -493,6 +531,20 @@ Status saveData(Graph *graph) {
         }
         vertex = vertex->next;
     }
+}
+
+/**
+ * Save data to a file
+ * @param {Graph *} graph - graph
+ * @return {Status} - execution status
+ */
+Status saveData(Graph *graph) {
+    if (!graph->initialized || !graph->vertices) { // binaryTree doesn't exist
+        return ERROR;
+    }
+
+    FILE *fp = fopen("data.txt", "w+");
+    saveHelper(graph, fp);
     fclose(fp);
     return OK;
 }
@@ -503,7 +555,7 @@ Status saveData(Graph *graph) {
  * @return {void}
  */
 void showElement(GraphVertex *e) {
-    printf("%d ", e->data.value);
+    printf("%c ", e->data.value);
 }
 
 /**
