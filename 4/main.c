@@ -77,6 +77,7 @@ int main() {
                     printf("You've chosen function locateByValue(), which finds a vertex\n");
                     printf("Please input the value of vertex:\n");
                     char value;
+                    while (getchar() != '\n');
                     if (!scanf("%c", &value)) { // invalid input
                         printf("Invalid value!\n");
                         while (getchar() != '\n');
@@ -127,7 +128,7 @@ int main() {
                     }
                     AdjacentVertex *vertex= getFirstVertex(currentGraph, key);
                     vertex == NULL ? printf("This vertex doesn't have adjacent vertex!\n")
-                                   : printf("The key of vertex is %d\n", vertex->key);
+                                   : printf("The key of first vertex is %d\n", vertex->key);
                     getchar();
                     break;
                 }
@@ -142,7 +143,7 @@ int main() {
                     }
                     AdjacentVertex *vertex= getNextVertex(currentGraph, key, prevKey);
                     vertex == NULL ? printf("This vertex doesn't have adjacent vertex!\n")
-                                   : printf("The key of vertex is %d\n", vertex->key);
+                                   : printf("The key of next vertex is %d\n", vertex->key);
                     getchar();
                     break;
                 }
